@@ -171,7 +171,15 @@ class ProductRepositoryTest {
         Page<Product> products = productRepository.searchProduct("%Iphone%", pageable);
         assertEquals(1, products.getContent().size());
 
+        assertEquals(0, products.getNumber());
+        assertEquals(2, products.getTotalPages());
+        assertEquals(2, products.getTotalElements());
+
         products = productRepository.searchProduct("%GADGET%", pageable);
         assertEquals(1, products.getContent().size());
+
+        assertEquals(0, products.getNumber());
+        assertEquals(2, products.getTotalPages());
+        assertEquals(2, products.getTotalElements());
     }
 }
