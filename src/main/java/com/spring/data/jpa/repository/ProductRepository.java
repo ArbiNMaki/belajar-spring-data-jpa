@@ -1,5 +1,6 @@
 package com.spring.data.jpa.repository;
 
+import com.spring.data.jpa.entity.Category;
 import com.spring.data.jpa.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -44,4 +46,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             countQuery = "SELECT count(p) FROM Product p WHERE p.name LIKE :name OR p.category.name LIKE :name"
     )
     Page<Product> searchProduct(@Param("name") String name, Pageable pageable);
+
+    Stream<Product> streamAllByCategory(Category category);
 }
