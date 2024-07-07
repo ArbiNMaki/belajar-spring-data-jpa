@@ -2,6 +2,7 @@ package com.spring.data.jpa.repository;
 
 import com.spring.data.jpa.entity.Category;
 import com.spring.data.jpa.entity.Product;
+import jakarta.validation.constraints.AssertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -97,5 +98,15 @@ class ProductRepositoryTest {
 
         count = productRepository.countByCategory_name("GADGET MURAH");
         assertEquals(2L, count);
+    }
+
+    @Test
+    void exists() {
+        boolean exists = productRepository.existsByName("Apple Iphone 14 Pro Max");
+        assertTrue(exists);
+
+        // test not exists
+        exists = productRepository.existsByName("Apple Iphone 14 Pro Max 2");
+        assertFalse(exists);
     }
 }
