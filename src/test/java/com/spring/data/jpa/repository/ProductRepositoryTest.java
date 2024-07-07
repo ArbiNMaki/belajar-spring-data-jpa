@@ -2,6 +2,8 @@ package com.spring.data.jpa.repository;
 
 import com.spring.data.jpa.entity.Category;
 import com.spring.data.jpa.entity.Product;
+import com.spring.data.jpa.model.ProductPrice;
+import com.spring.data.jpa.model.SimpleProduct;
 import jakarta.validation.constraints.AssertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -264,5 +266,16 @@ class ProductRepositoryTest {
 
         List<Product> products = productRepository.findAll(specification);
         assertEquals(2, products.size());
+    }
+
+    @Test
+    void projection() {
+        List<SimpleProduct> simpleProducts = productRepository
+                .findAllByNameLike("%Apple%", SimpleProduct.class);
+        assertEquals(2, simpleProducts.size());
+
+        List<ProductPrice> productPrices = productRepository
+                .findAllByNameLike("%Apple%", ProductPrice.class);
+        assertEquals(2, productPrices.size());
     }
 }
