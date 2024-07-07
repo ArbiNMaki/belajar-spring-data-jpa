@@ -16,6 +16,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByName(String name);
 
+    int deleteByName(String name);
+
     List<Product> findAllByCategory_Name(String name);
 
     List<Product> findAllByCategory_Name(String name, Sort sort);
