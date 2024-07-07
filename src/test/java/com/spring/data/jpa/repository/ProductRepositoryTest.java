@@ -89,4 +89,13 @@ class ProductRepositoryTest {
         assertEquals(2, products.getTotalPages());
         assertEquals("Apple Iphone 14 Pro Max", products.getContent().get(0).getName());
     }
+
+    @Test
+    void count() {
+        Long count = productRepository.count();
+        assertEquals(2L, count);
+
+        count = productRepository.countByCategory_name("GADGET MURAH");
+        assertEquals(2L, count);
+    }
 }
