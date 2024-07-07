@@ -134,4 +134,23 @@ class ProductRepositoryTest {
             assertEquals(0, delete);
         });
     }
+
+    @Test
+    void deleteWithoutProgrammaticTransactional() {
+        Category category = categoryRepository.findById(4L).orElse(null);
+        assertNotNull(category);
+
+        Product product = new Product();
+        product.setName("Samsung Galaxy S14");
+        product.setPrice(10_000_000L);
+        product.setCategory(category);
+        productRepository.save(product);
+
+        int delete = productRepository.deleteByName("Samsung Galaxy S14");
+        assertEquals(1, delete);
+
+        // not exists
+        delete = productRepository.deleteByName("Samsung Galaxy S14");
+        assertEquals(0, delete);
+    }
 }
