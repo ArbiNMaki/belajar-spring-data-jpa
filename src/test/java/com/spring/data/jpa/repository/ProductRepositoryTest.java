@@ -5,6 +5,8 @@ import com.spring.data.jpa.entity.Product;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -60,5 +62,24 @@ class ProductRepositoryTest {
         assertEquals(2, products.size());
         assertEquals("Apple Iphone 15 Pro Max", products.get(0).getName());
         assertEquals("Apple Iphone 14 Pro Max", products.get(1).getName());
+    }
+
+    @Test
+    void findProductsWithPageable() {
+        // Page 0
+        Pageable pageable = PageRequest.of
+                (0, 1, Sort.by(Sort.Order.desc("id")));
+        List<Product> products = productRepository.findAllByCategory_Name("GADGET MURAH", pageable);
+
+        assertEquals(1, products.size());
+        assertEquals("Apple Iphone 15 Pro Max", products.get(0).getName());
+
+        // Page 1
+        pageable = PageRequest.of
+                (1, 1, Sort.by(Sort.Order.desc("id")));
+        products = productRepository.findAllByCategory_Name("GADGET MURAH", pageable);
+
+        assertEquals(1, products.size());
+        assertEquals("Apple Iphone 14 Pro Max", products.get(0).getName());
     }
 }
