@@ -4,6 +4,7 @@ import com.spring.data.jpa.entity.Category;
 import com.spring.data.jpa.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -48,4 +49,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> searchProduct(@Param("name") String name, Pageable pageable);
 
     Stream<Product> streamAllByCategory(Category category);
+
+    Slice<Product> findAllByCategory(Category category, Pageable pageable);
 }
