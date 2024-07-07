@@ -6,13 +6,11 @@ import jakarta.validation.constraints.AssertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -132,6 +130,123 @@ class ProductRepositoryTest {
             // not exists
             delete = productRepository.deleteByName("Samsung Galaxy S14");
             assertEquals(0, delete);
+        });
+    }
+
+    @Test
+    void deleteWithoutProgrammaticTransactional() {
+        Category category = categoryRepository.findById(4L).orElse(null);
+        assertNotNull(category);
+
+        Product product = new Product();
+        product.setName("Samsung Galaxy S14");
+        product.setPrice(10_000_000L);
+        product.setCategory(category);
+        productRepository.save(product);
+
+        int delete = productRepository.deleteByName("Samsung Galaxy S14");
+        assertEquals(1, delete);
+
+        // not exists
+        delete = productRepository.deleteByName("Samsung Galaxy S14");
+        assertEquals(0, delete);
+    }
+
+    @Test
+    void searchProduct() {
+        Pageable pageable = PageRequest.of(0, 1);
+        List<Product> products = productRepository
+                .searchProductUsingName("Apple Iphone 14 Pro Max", pageable);
+
+        assertEquals(1, products.size());
+        assertEquals("Apple Iphone 14 Pro Max", products.get(0).getName());
+    }
+
+    @Test
+    void searchProductLike() {
+        Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Order.desc("id")));
+
+        Page<Product> products = productRepository.searchProduct("%Iphone%", pageable);
+        assertEquals(1, products.getContent().size());
+
+        assertEquals(0, products.getNumber());
+        assertEquals(2, products.getTotalPages());
+        assertEquals(2, products.getTotalElements());
+
+        products = productRepository.searchProduct("%GADGET%", pageable);
+        assertEquals(1, products.getContent().size());
+
+        assertEquals(0, products.getNumber());
+        assertEquals(2, products.getTotalPages());
+        assertEquals(2, products.getTotalElements());
+    }
+
+    @Test
+    void modifying() {
+        transactionOperations.executeWithoutResult(transactionStatus -> {
+            int total = productRepository.deleteProductUsingName("Wrong");
+            assertEquals(0, total);
+
+            total = productRepository.updateProductPriceToZero(1L);
+            assertEquals(1, total);
+
+            Product product = productRepository.findById(1L).orElse(null);
+            assertNotNull(product);
+            assertEquals(0L, product.getPrice());
+        });
+    }
+
+    @Test
+    void stream() {
+        transactionOperations.executeWithoutResult(transactionStatus -> {
+            Category category = categoryRepository.findById(4L).orElse(null);
+            assertNotNull(category);
+
+            Stream<Product> stream = productRepository.streamAllByCategory(category);
+            stream.forEach(product -> System.out.println(product.getId() + " : " + product.getName()));
+        });
+    }
+
+    @Test
+    void slice() {
+        Pageable firstPage = PageRequest.of(0, 1);
+
+        Category category = categoryRepository.findById(4L).orElse(null);
+        assertNotNull(category);
+
+        Slice<Product> slice = productRepository.findAllByCategory(category, firstPage);
+
+        while (slice.hasNext()) {
+            slice = productRepository.findAllByCategory(category, slice.nextPageable());
+        }
+    }
+
+    @Test
+    void lock1() {
+        transactionOperations.executeWithoutResult(transactionStatus -> {
+            try {
+                Product product = productRepository.findFirstByIdEquals(1L)
+                        .orElse(null);
+                assertNotNull(product);
+                product.setPrice(30_000_000L);
+
+                Thread.sleep(20_000L);
+                productRepository.save(product);
+            } catch (InterruptedException exception) {
+                throw new RuntimeException(exception);
+            }
+        });
+    }
+
+    @Test
+    void lock2() {
+        transactionOperations.executeWithoutResult(transactionStatus -> {
+            Product product = productRepository.findFirstByIdEquals(1L)
+                    .orElse(null);
+            assertNotNull(product);
+            product.setPrice(10_000_000L);
+
+            productRepository.save(product);
         });
     }
 }
