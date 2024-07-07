@@ -153,4 +153,14 @@ class ProductRepositoryTest {
         delete = productRepository.deleteByName("Samsung Galaxy S14");
         assertEquals(0, delete);
     }
+
+    @Test
+    void searchProduct() {
+        Pageable pageable = PageRequest.of(0, 1);
+        List<Product> products = productRepository
+                .searchProductUsingName("Apple Iphone 14 Pro Max", pageable);
+
+        assertEquals(1, products.size());
+        assertEquals("Apple Iphone 14 Pro Max", products.get(0).getName());
+    }
 }
