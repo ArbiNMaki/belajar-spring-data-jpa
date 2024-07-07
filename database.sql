@@ -26,3 +26,9 @@ CREATE TABLE products
 SHOW TABLES;
 
 SELECT * FROM products;
+
+ALTER TABLE categories
+	ADD COLUMN created_date TIMESTAMP;
+	
+ALTER TABLE categories
+	ADD COLUMN last_modified_date TIMESTAMP;

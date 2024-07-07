@@ -2,11 +2,14 @@ package com.spring.data.jpa.repository;
 
 import com.spring.data.jpa.entity.Category;
 import com.spring.data.jpa.entity.Product;
+import com.spring.data.jpa.model.ProductPrice;
+import com.spring.data.jpa.model.SimpleProduct;
 import jakarta.validation.constraints.AssertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.support.TransactionOperations;
 
 import java.util.List;
@@ -248,5 +251,31 @@ class ProductRepositoryTest {
 
             productRepository.save(product);
         });
+    }
+
+    @Test
+    void specification() {
+        Specification<Product> specification = (root, criteria, builder) -> {
+            return criteria.where(
+                    builder.or(
+                            builder.equal(root.get("name"), "Apple Iphone 14 Pro Max"),
+                            builder.equal(root.get("name"), "Apple Iphone 15 Pro Max")
+                    )
+            ).getRestriction();
+        };
+
+        List<Product> products = productRepository.findAll(specification);
+        assertEquals(2, products.size());
+    }
+
+    @Test
+    void projection() {
+        List<SimpleProduct> simpleProducts = productRepository
+                .findAllByNameLike("%Apple%", SimpleProduct.class);
+        assertEquals(2, simpleProducts.size());
+
+        List<ProductPrice> productPrices = productRepository
+                .findAllByNameLike("%Apple%", ProductPrice.class);
+        assertEquals(2, productPrices.size());
     }
 }
